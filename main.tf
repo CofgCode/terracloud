@@ -43,8 +43,7 @@ resource "aws_instance" "blog" {
   
   #vpc_security_group_ids = [aws_security_group.blog.id]
   vpc_security_group_ids = [module.blog_sg.security_group_id]
-  
-  subnet_id = module.blog_vpc.public_subnets[0]
+  subnet_id              = module.blog_vpc.public_subnets[0]
 
   tags = {
     Name = "HelloWorld"
@@ -57,8 +56,6 @@ module "alb" {
   name               = "blog-alb"
   vpc_id             = module.blog_vpc.vpc_id
   subnets            = module.blog_vpc.public_subnets
-  #security_groups = module.blog_sg.security_group_id
-  #aws_security_group = module.blog_sg.security_group_id
   security_groups    = [module.blog_sg.security_group_id]
 
   listeners = {
