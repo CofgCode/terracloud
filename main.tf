@@ -59,26 +59,42 @@ module "alb" {
   security_groups    = [module.blog_sg.security_group_id]
 
   listeners = {
-    ex-http-https-redirect = {
+    http_forward = {
       port     = 80
       protocol = "HTTP"
+      # Acción por defecto: Reenviar (forward) el tráfico directamente al Target Group
+      default_action = {
+        type             = "fordward"
+        target_group_key = aws_instance.blog.id
+      }
     }
-    ex-https = {
-        forward          = {
-        target_group_key = "ex-instance"
+
+
+
+  }
+
+  target_groups = {
+    instance_tg = {
+      name_prefix      = "blog-tg-"
+      protocol         = "HTTP" # El ALB hablará HTTP con las instancias
+      port             = 80     # Las instancias escuchan en el puerto 80
+      target_type      = "instance"
+      vpc_id           = module.blog_vpc.vpc_id
+
+      health_check = {
+        enabled             = true
+        interval            = 30
+        path                = "/" # Ajusta la ruta de health check si es necesario
+        port                = "traffic-port"
+        healthy_threshold   = 3
+        unhealthy_threshold = 3
+        timeout             = 6
+        protocol            = "HTTP" # El health check usa HTTP
+        matcher             = "200-399"
       }
     }
   }
 
-  target_groups = {
-    ex-instance = {
-      name_prefix      = "blog"
-      protocol         = "HTTP"
-      port             = 80
-      target_type      = "instance"
-      target_id        = aws_instance.blog.id
-    }
-  }
 
   tags = {
     Environment = "Development"
