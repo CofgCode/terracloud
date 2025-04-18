@@ -75,7 +75,7 @@ module "alb" {
 
   target_groups = {
     instance_tg = {
-      name_prefix      = "blog-tg-"
+      name_prefix      = "blogtg"
       protocol         = "HTTP" # El ALB hablará HTTP con las instancias
       port             = 80     # Las instancias escuchan en el puerto 80
       target_type      = "instance"
@@ -85,7 +85,7 @@ module "alb" {
         enabled             = true
         interval            = 30
         path                = "/" # Ajusta la ruta de health check si es necesario
-        port                = "traffic-port"
+        port                = "80"
         healthy_threshold   = 3
         unhealthy_threshold = 3
         timeout             = 6
@@ -94,7 +94,6 @@ module "alb" {
       }
     }
   }
-
 
   tags = {
     Environment = "Development"
