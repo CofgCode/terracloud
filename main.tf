@@ -69,7 +69,7 @@ resource "aws_lb" "front_end" {
 }
 
 resource "aws_lb_target_group" "front_end" {
-  name     = "front_end-lb-tg"
+  name     = "front-end-lb-tg"
   port     = 80
   protocol = "HTTP"
   vpc_id   = module.blog_vpc.vpc_id
