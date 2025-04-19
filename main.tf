@@ -50,47 +50,17 @@ resource "aws_instance" "blog" {
   }
 }
 
-module "alb" {
-  source  = "terraform-aws-modules/alb/aws"
-  version = "~> 9.1" # <-- REQUIRED for v9.x syntax
-  # version = "~> 8.0" # Considerar añadir/actualizar la versión
-
-  name            = "blog-alb"
+resource "aws_lb" "alb" {
+  name               = "blog-alb"
+  internal           = false
+  load_balancer_type = "application"
   vpc_id          = module.blog_vpc.vpc_id
+  #security_groups    = [aws_security_group.lb_sg.id]
+  security_groups    = [module.blog_sg.security_group_id]
+  #subnets            = [for subnet in aws_subnet.public : subnet.id]
   subnets         = module.blog_vpc.public_subnets
-  security_groups = [module.blog_sg.security_group_id]
-  listeners = {
-    http = { # Key renamed
-      port     = 80
-      protocol = "HTTP"
-      default_action = {
-        type             = "forward"
-        target_group_key = "instance_tg"
-      }
-    }
-  }
-  target_groups = {
-    instance_tg = { # <-- Esta es la clave "instance_tg" que se usa arriba
-      name_prefix       = "blogtg"
-      protocol          = "HTTP"
-      port              = 80
-      target_type       = "instance"
-      vpc_id            = module.blog_vpc.vpc_id
-      create_attachment = false # <-- Cambiado a false para evitar la creación automática de adjuntos
-      # health_check = { # <-- Comentado para evitar conflictos con la configuración de salud
-      health_check = {
-        enabled             = true
-        interval            = 30
-        path                = "/"
-        port                = "traffic-port" # <-- Cambiado a "traffic-port" (más flexible)
-        healthy_threshold   = 3
-        unhealthy_threshold = 3
-        timeout             = 6
-        protocol            = "HTTP"
-        matcher             = "200-399"
-      }
-    }
-  }
+
+  enable_deletion_protection = true
 
   tags = {
     Environment = "Development"
@@ -98,16 +68,24 @@ module "alb" {
   }
 }
 
-# --- Asociación de Instancias 'aws_instance.blog'  al target group
-
-resource "aws_lb_target_group_attachment" "blog_attachment" {
-  target_group_arn = module.alb.target_groups["instance_tg"].arn #module.alb.target_group_arns["instance_tg"] version 8  Obtiene el ARN del TG del módulo
-  target_id        = aws_instance.blog.id                        # 
-  port             = 80                                          # Puerto en el que la instancia recibe tráfico del LB
+resource "aws_lb_target_group" "target_gr" {
+  name     = "instance_tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = module.blog_vpc.vpc_id
 }
 
-# usar un Auto Scaling Group más adelante, 
-# Configurar para usar 'module.alb.target_group_arns["instance_tg"]'.
+resource "aws_lb_listener" "listener_alb" {
+  load_balancer_arn = aws_lb.alb.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.target_gr.arn
+  }
+}
+
 
 
 module "blog_sg" {
