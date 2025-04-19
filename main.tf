@@ -54,13 +54,13 @@ resource "aws_lb" "alb" {
   name               = "blog-alb"
   internal           = false
   load_balancer_type = "application"
-  vpc_id          = module.blog_vpc.vpc_id
+  #vpc_id          = module.blog_vpc.vpc_id
   #security_groups    = [aws_security_group.lb_sg.id]
   security_groups    = [module.blog_sg.security_group_id]
   #subnets            = [for subnet in aws_subnet.public : subnet.id]
   subnets         = module.blog_vpc.public_subnets
 
-  enable_deletion_protection = true
+  enable_deletion_protection = false
 
   tags = {
     Environment = "Development"
