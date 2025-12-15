@@ -130,7 +130,7 @@ resource "aws_ecs_service" "frontend" {
   cluster         = aws_ecs_cluster.cluster.id
   task_definition = aws_ecs_task_definition.frontend.arn
   launch_type     = "FARGATE"
-  desired_count   = 1
+  desired_count   = var.frontend_desired_count
 
   network_configuration {
     subnets          = var.public_subnets # Frontend needs public IP if pulling from public ECR or using Internet? Actually usually private if NAT, but let's stick to public subnets for simpler demo or private with NAT. User added NAT gateway, so private is better. But existing sites module used public. Let's use vars.
@@ -164,6 +164,10 @@ resource "aws_lb_target_group" "frontend_tg" {
   tags = {
     Environment = var.environment.name
     Project     = "Container application"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -227,7 +231,7 @@ resource "aws_ecs_service" "backend" {
   cluster         = aws_ecs_cluster.cluster.id
   task_definition = aws_ecs_task_definition.backend.arn
   launch_type     = "FARGATE"
-  desired_count   = 2
+  desired_count   = var.backend_desired_count
 
   network_configuration {
     subnets          = var.private_subnets
@@ -267,6 +271,10 @@ resource "aws_lb_target_group" "backend_internal_tg" {
     Environment = var.environment.name
     Project     = "Container application"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_lb_target_group" "backend_public_tg" {
@@ -282,6 +290,10 @@ resource "aws_lb_target_group" "backend_public_tg" {
   tags = {
     Environment = var.environment.name
     Project     = "Container application"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 

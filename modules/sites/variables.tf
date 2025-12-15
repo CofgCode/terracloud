@@ -2,10 +2,6 @@ variable "instance_type" {
   description = "Type of EC2 instance to provision"
   default     = "t3.nano"
 }
-/*
-additional variables to customize the environments
-
-*/
 
 variable "ami_filter" {
   description = "Name filter and owner for AMI"
@@ -45,4 +41,10 @@ variable "asg_max_size" {
  description = "Maximum number of instances in the ASG"
  default = 2
 
+}
+
+variable "azs" {
+  description = "List of Availability Zones to use"
+  type        = list(string)
+  default     = ["us-west-2a", "us-west-2b", "us-west-2c"]
 }

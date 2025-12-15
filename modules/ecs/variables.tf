@@ -107,3 +107,15 @@ variable "aws_region" {
   type        = string
   default     = "us-west-2"
 }
+
+variable "frontend_desired_count" {
+  description = "Desired number of tasks for Frontend Service"
+  type        = number
+  default     = 1
+}
+
+variable "backend_desired_count" {
+  description = "Desired number of tasks for Backend Service"
+  type        = number
+  default     = 1 # Defaulting to 1 for cost, overridden in Prod
+}

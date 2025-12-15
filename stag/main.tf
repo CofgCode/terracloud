@@ -4,6 +4,7 @@ module "sites" {
     name           = "stag"
     network_prefix = "10.1"
   }
+  azs = ["us-west-2a"]
 }
 
 module "ecr" {
@@ -53,4 +54,7 @@ module "ecs" {
   }
   
   aws_region = "us-west-2"
+  
+  frontend_desired_count = 1
+  backend_desired_count  = 1
 }

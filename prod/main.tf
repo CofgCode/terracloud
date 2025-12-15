@@ -4,6 +4,7 @@ module "sites" {
     name           = "prod"
     network_prefix = "10.2" # Assuming 10.2 for prod, following dev=10.0 pattern or user preference. Let's stick to a different CIDR.
   }
+  azs = ["us-west-2a", "us-west-2b"]
 }
 
 module "ecr" {
@@ -53,4 +54,7 @@ module "ecs" {
   }
   
   aws_region = "us-west-2"
+  
+  frontend_desired_count = 2
+  backend_desired_count  = 2
 }
