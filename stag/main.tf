@@ -1,7 +1,7 @@
 module  "stag" {
  source = "../modules/sites"
  environment = {
-    name           = "staging"
+    name           = "stag"
     network_prefix = "10.1"
   }
 
