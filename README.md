@@ -132,3 +132,6 @@ You must create the following Workspaces in Terraform Cloud before running `terr
 | **Production** | `terracloud/prod` | `wsterracloud-prod` | CLI-driven |
 
 *> **Note**: The workspace names are defined in the `cloud` block of each environment's configuration. If you name them differently in TFC, you must update the `workspaces { name = "..." }` block in the respective `main.tf`.*
+
+> [!IMPORTANT]
+> **Deployment Order**: You **MUST** deploy the **Shared** environment first. The Development, Staging, and Production environments rely on the ECR repositories created in `shared`. If you try to deploy them before `shared` is applied, they will fail with a "resource not found" error.
