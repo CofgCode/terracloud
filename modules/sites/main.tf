@@ -26,11 +26,12 @@ module "blog_vpc" {
   cidr = "${var.environment.network_prefix}.0.0/16"
 
   azs             = ["us-west-2a", "us-west-2b", "us-west-2c"]
-  # private_subnets = ["${}.1.0/24", "${}.2.0/24", "${}.3.0/24"]
+  private_subnets = ["${var.environment.network_prefix}.1.0/24", "${var.environment.network_prefix}.2.0/24", "${var.environment.network_prefix}.3.0/24"]
   public_subnets  = ["${var.environment.network_prefix}.101.0/24", "${var.environment.network_prefix}.102.0/24", "${var.environment.network_prefix}.103.0/24"]
 
-  #enable_nat_gateway = true
-  #enable_vpn_gateway = true
+  enable_nat_gateway = true
+  single_nat_gateway = true
+  enable_vpn_gateway = false
 
   tags = {
     Terraform = "true"
@@ -138,6 +139,56 @@ module "blog_sg" {
   egress_rules       = ["all-all"]
   egress_cidr_blocks = ["0.0.0.0/0"]
 
+}
+
+resource "aws_lb" "internal_backend" {
+  name               = "${var.environment.name}-internal-alb"
+  internal           = true
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.internal_lb_sg.id]
+  subnets            = module.blog_vpc.private_subnets
+
+  enable_deletion_protection = false
+
+  tags = {
+    Environment = var.environment.name
+    Project     = "Container application"
+  }
+}
+
+resource "aws_lb_listener" "internal_backend" {
+  load_balancer_arn = aws_lb.internal_backend.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type = "fixed-response"
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Fixed response content"
+      status_code  = "200"
+    }
+  }
+}
+
+resource "aws_security_group" "internal_lb_sg" {
+  name        = "${var.environment.name}-internal-alb-sg"
+  description = "Security group for internal ALB"
+  vpc_id      = module.blog_vpc.vpc_id
+
+  ingress {
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [module.blog_sg.security_group_id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 # resource "aws_security_group"  "blog" {

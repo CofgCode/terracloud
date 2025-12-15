@@ -1,15 +1,15 @@
-# Terraform cloud labs
+# Terraform 
 
 ## Topics covered:
 
 How to use Terraform to configure infrastructure and manage resources with Amazon Web Services (AWS).
 How to set up AWS for Terraform
-How Terraform manages your infrastructure
+How Terraform manages this infrastructure
 How to use core Terraform commands. 
 ### Advanced topics
 Leverage code modules from the Terraform registry and how to create your own modules. 
 
-_See the readme file in the main branch for updated instructions and information._
+
 ## Instructions
 You will need terraform cloud to deploy this proyect
 
