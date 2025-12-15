@@ -5,3 +5,8 @@ output "instance_ami" {
 output "instance_arn" {
   value = aws_instance.blog.arn
 }
+
+output "environment_url" {
+  value = aws_lb.front_end.dns_name
+
+}

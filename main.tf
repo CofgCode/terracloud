@@ -37,6 +37,21 @@ module "blog_vpc" {
     Environment = var.environment.name
   }
 }
+
+
+resource "aws_launch_template" "blog" {
+  name_prefix            = "${var.environment.name}-asg-blog-"
+  image_id               = data.aws_ami.app_ami.id
+  instance_type          = var.instance_type
+  vpc_security_group_ids = [module.blog_sg.security_group_id]
+
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name = "${var.environment.name}-blog"
+    }
+  }
+}
 /*
 module "blog_autoscaling" {
   source  = "terraform-aws-modules/autoscaling/aws"
@@ -44,18 +59,18 @@ module "blog_autoscaling" {
 
   name = "${var.environment.name}-asg-blog"
 
-  min_size            = var.asg_min_size
-  max_size            = var.asg_max_size
-  desired_capacity    = var.asg_min_size
+  min_size         = var.asg_min_size
+  max_size         = var.asg_max_size
+  desired_capacity = var.asg_min_size
 
   vpc_zone_identifier = module.blog_vpc.public_subnets
-  target_group_arns   = module.blog_alb.target_group_arns
-  security_groups     = [module.blog_sg.security_group_id]
+  target_group_arns   = [aws_lb_target_group.front_end.arn]
 
-  instance_type       = var.instance_type
-  image_id            = data.aws_ami.app_ami.id
+  create_launch_template = false
+  launch_template        = aws_launch_template.blog.name
 }
 */
+
 
 resource "aws_instance" "blog" {
   ami           = data.aws_ami.app_ami.id
