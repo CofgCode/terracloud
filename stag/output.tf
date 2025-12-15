@@ -1,4 +1,4 @@
 output "environment_url" {
-  value = module.stag.environment_url
+  value = module.sites.environment_url
 
 }

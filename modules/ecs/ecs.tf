@@ -152,7 +152,7 @@ resource "aws_ecs_service" "frontend" {
 }
 
 resource "aws_lb_target_group" "frontend_tg" {
-  name        = "frontend-tg"
+  name        = "${var.environment.name}-frontend-tg"
   port        = var.frontend_container_port
   protocol    = "HTTP"
   target_type = "ip"
@@ -254,7 +254,7 @@ resource "aws_ecs_service" "backend" {
 }
 
 resource "aws_lb_target_group" "backend_internal_tg" {
-  name        = "backend-internal-tg"
+  name        = "${var.environment.name}-backend-internal-tg"
   port        = var.backend_container_port
   protocol    = "HTTP"
   target_type = "ip"
@@ -270,7 +270,7 @@ resource "aws_lb_target_group" "backend_internal_tg" {
 }
 
 resource "aws_lb_target_group" "backend_public_tg" {
-  name        = "backend-public-tg"
+  name        = "${var.environment.name}-backend-public-tg"
   port        = var.backend_container_port
   protocol    = "HTTP"
   target_type = "ip"
