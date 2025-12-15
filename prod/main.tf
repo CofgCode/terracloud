@@ -7,10 +7,13 @@ module "sites" {
   azs = ["us-west-2a", "us-west-2b"]
 }
 
-module "ecr" {
-  source = "../modules/ecr"
-  backend_ecr_repo_name  = "prod-backend-repo"
-  frontend_ecr_repo_name = "prod-frontend-repo"
+# --- Shared ECR Lookup ---
+data "aws_ecr_repository" "backend" {
+  name = "app-backend-repo"
+}
+
+data "aws_ecr_repository" "frontend" {
+  name = "app-frontend-repo"
 }
 
 module "ecs" {
@@ -29,8 +32,9 @@ module "ecs" {
   frontend_task_family = "prod-frontend-task"
   backend_task_family  = "prod-backend-task"
   
-  frontend_ecr_repo_url = module.ecr.frontend_repository_url
-  backend_ecr_repo_url  = module.ecr.backend_repository_url
+  # Use URLs from Data Source (Shared ECR)
+  frontend_ecr_repo_url = data.aws_ecr_repository.frontend.repository_url
+  backend_ecr_repo_url  = data.aws_ecr_repository.backend.repository_url
   
   frontend_container_port = 80
   backend_container_port  = 3001

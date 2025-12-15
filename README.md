@@ -9,12 +9,12 @@ This directory contains the Terraform Infrastructure as Code (IaC) configuration
 
 The project follows a modular structure to ensure consistency and reusability:
 
-```text
 terracloud/
 ├── modules/                  # Reusable Terraform logic
 │   ├── sites/                # Networking & Load Balancing (VPC, ALB, NAT)
 │   ├── ecs/                  # Compute & Services (Cluster, Fargate Tasks, ASG)
 │   └── ecr/                  # Artifact Registry (Docker repositories)
+├── shared/                   # Shared Resources (ECR Repositories)
 ├── dev/                      # Development Environment Configuration
 ├── stag/                     # Staging Environment Configuration
 └── prod/                     # Production Environment Configuration
@@ -126,6 +126,7 @@ You must create the following Workspaces in Terraform Cloud before running `terr
 
 | Environment | Directory | TFC Workspace Name | Workflow Type |
 | :--- | :--- | :--- | :--- |
+| **Shared** | `terracloud/shared` | `wsterracloud-shared` | CLI-driven |
 | **Development** | `terracloud/dev` | `wsterracloud-dev` | CLI-driven |
 | **Staging** | `terracloud/stag` | `wsterracloud-stag` | CLI-driven |
 | **Production** | `terracloud/prod` | `wsterracloud-prod` | CLI-driven |
