@@ -93,3 +93,17 @@ variable "frontend_env_vars" {
   }))
   default = []
 }
+
+variable "environment" {
+  description = "Environment configuration"
+  type = object({
+    name           = string
+    network_prefix = string
+  })
+}
+
+variable "aws_region" {
+  description = "AWS Region"
+  type        = string
+  default     = "us-west-2"
+}

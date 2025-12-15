@@ -1,5 +1,32 @@
 resource "aws_ecs_cluster" "cluster" {
   name = var.demo_app_cluster_name
+  
+  tags = {
+    Environment = var.environment.name
+    Project     = "Container application"
+  }
+}
+
+# --- CloudWatch Logs ---
+
+resource "aws_cloudwatch_log_group" "frontend_log_group" {
+  name = "/ecs/${var.frontend_service_name}"
+  retention_in_days = 30
+
+  tags = {
+    Environment = var.environment.name
+    Project     = "Container application"
+  }
+}
+
+resource "aws_cloudwatch_log_group" "backend_log_group" {
+  name = "/ecs/${var.backend_service_name}"
+  retention_in_days = 30
+
+  tags = {
+    Environment = var.environment.name
+    Project     = "Container application"
+  }
 }
 
 # --- IAM Roles ---
@@ -9,8 +36,7 @@ resource "aws_iam_role" "ecs_task_execution_role" {
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
 }
 
-
-
+# Allow logging to CloudWatch
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
@@ -53,6 +79,11 @@ resource "aws_security_group" "app_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  
+  tags = {
+    Environment = var.environment.name
+    Project     = "Container application"
+  }
 }
 
 # --- Frontend Service ---
@@ -77,8 +108,21 @@ resource "aws_ecs_task_definition" "frontend" {
         }
       ],
       environment = var.frontend_env_vars
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.frontend_log_group.name
+          "awslogs-region"        = var.aws_region
+          "awslogs-stream-prefix" = "frontend"
+        }
+      }
     }
   ])
+  
+  tags = {
+    Environment = var.environment.name
+    Project     = "Container application"
+  }
 }
 
 resource "aws_ecs_service" "frontend" {
@@ -100,6 +144,11 @@ resource "aws_ecs_service" "frontend" {
     container_name   = "frontend-container"
     container_port   = var.frontend_container_port
   }
+  
+  tags = {
+    Environment = var.environment.name
+    Project     = "Container application"
+  }
 }
 
 resource "aws_lb_target_group" "frontend_tg" {
@@ -110,6 +159,11 @@ resource "aws_lb_target_group" "frontend_tg" {
   vpc_id      = var.vpc_id
   health_check {
     path = "/"
+  }
+  
+  tags = {
+    Environment = var.environment.name
+    Project     = "Container application"
   }
 }
 
@@ -150,9 +204,22 @@ resource "aws_ecs_task_definition" "backend" {
           containerPort = var.backend_container_port
           hostPort      = var.backend_container_port
         }
-      ]
+      ],
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.backend_log_group.name
+          "awslogs-region"        = var.aws_region
+          "awslogs-stream-prefix" = "backend"
+        }
+      }
     }
   ])
+  
+  tags = {
+    Environment = var.environment.name
+    Project     = "Container application"
+  }
 }
 
 resource "aws_ecs_service" "backend" {
@@ -179,6 +246,11 @@ resource "aws_ecs_service" "backend" {
     container_name   = "backend-container"
     container_port   = var.backend_container_port
   }
+  
+  tags = {
+    Environment = var.environment.name
+    Project     = "Container application"
+  }
 }
 
 resource "aws_lb_target_group" "backend_internal_tg" {
@@ -190,6 +262,11 @@ resource "aws_lb_target_group" "backend_internal_tg" {
   health_check {
     path = "/health" # Assumed health check
   }
+  
+  tags = {
+    Environment = var.environment.name
+    Project     = "Container application"
+  }
 }
 
 resource "aws_lb_target_group" "backend_public_tg" {
@@ -200,6 +277,11 @@ resource "aws_lb_target_group" "backend_public_tg" {
   vpc_id      = var.vpc_id
   health_check {
     path = "/health"
+  }
+  
+  tags = {
+    Environment = var.environment.name
+    Project     = "Container application"
   }
 }
 

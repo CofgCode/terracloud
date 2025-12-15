@@ -46,4 +46,11 @@ module "ecs" {
       value = "/api"
     }
   ]
+
+  environment = {
+    name           = "prod"
+    network_prefix = "10.2"
+  }
+  
+  aws_region = "us-west-2"
 }
