@@ -110,5 +110,24 @@ To deploy or update an environment (e.g., `dev`):
     terraform apply
     ```
 
-## Terraform Cloud
-This project is configured to work with Terraform Cloud (HCP Terraform) for state management. Ensure you have authenticated via `terraform login` or set the `TF_TOKEN_app_terraform_io` environment variable if running locally.
+## Terraform Cloud Setup
+
+This project is configured to use **Terraform Cloud (HCP Terraform)** for state management. 
+
+### Prerequisites
+1.  **Organization**: Ensure you have an Organization created in TFC (referenced as `myiacterracloud` in the code, or update the `cloud` block to match your org).
+2.  **CLI Authentication**: Authenticate your local terminal with TFC:
+    ```bash
+    terraform login
+    ```
+
+### Required Workspaces
+You must create the following Workspaces in Terraform Cloud before running `terraform init`:
+
+| Environment | Directory | TFC Workspace Name | Workflow Type |
+| :--- | :--- | :--- | :--- |
+| **Development** | `terracloud/dev` | `wsterracloud-dev` | CLI-driven |
+| **Staging** | `terracloud/stag` | `wsterracloud-stag` | CLI-driven |
+| **Production** | `terracloud/prod` | `wsterracloud-prod` | CLI-driven |
+
+*> **Note**: The workspace names are defined in the `cloud` block of each environment's configuration. If you name them differently in TFC, you must update the `workspaces { name = "..." }` block in the respective `main.tf`.*
