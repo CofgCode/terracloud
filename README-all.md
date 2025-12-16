@@ -93,10 +93,17 @@ This solution utilizes **AWS ECS Fargate**, a serverless compute engine for cont
 
 ```mermaid
 graph TD
-    User((User)) -->|HTTPS/443| PubALB[Public ALB]
+    User((User)) -->|HTTPS/443| WAF[AWS WAF]
+    WAF --> CF[CloudFront]
+    CF --> IGW[Internet Gateway]
+    IGW --> PubALB[Public ALB]
+    
+    style WAF fill:#f9f,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5
+    style CF fill:#f9f,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5
     
     subgraph VPC
         subgraph Public_Subnets
+            IGW
             PubALB
             NatGW[NAT Gateway]
         end
@@ -117,6 +124,9 @@ graph TD
     
     BE_Service -->|Outbound| NatGW
     NatGW -->|Internet| ECR[AWS ECR]
+
+    note_waf[Note: WAF is Not Implemented] -.-> WAF
+    note_cf[Note: CloudFront is Not Implemented] -.-> CF
 ```
 
 ## Security Considerations
