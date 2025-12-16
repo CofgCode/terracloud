@@ -104,16 +104,23 @@ graph TD
     subgraph VPC
         subgraph Public_Subnets
             IGW
-            PubALB
+            subgraph SG_Public_ALB [Security Group: Public ALB]
+                PubALB
+            end
             NatGW[NAT Gateway]
         end
         
         subgraph Private_Subnets
-            subgraph ECS_Cluster
-                FE_Service["Frontend Service<br/>(Fargate)"]
-                BE_Service["Backend Service<br/>(Fargate)"]
+            subgraph SG_Internal_ALB [Security Group: Internal ALB]
+                IntALB[Internal ALB]
             end
-            IntALB[Internal ALB]
+            
+            subgraph ECS_Cluster
+                subgraph SG_App [Security Group: ECS Tasks]
+                    FE_Service["Frontend Service<br/>(Fargate)"]
+                    BE_Service["Backend Service<br/>(Fargate)"]
+                end
+            end
         end
     end
     
