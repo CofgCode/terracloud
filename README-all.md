@@ -104,8 +104,8 @@ graph TD
         
         subgraph Private_Subnets
             subgraph ECS_Cluster
-                FE_Service[Frontend Service<br/>(Fargate)]
-                BE_Service[Backend Service<br/>(Fargate)]
+                FE_Service["Frontend Service<br/>(Fargate)"]
+                BE_Service["Backend Service<br/>(Fargate)"]
             end
             IntALB[Internal ALB]
         end
