@@ -145,6 +145,8 @@ resource "aws_ecs_service" "frontend" {
     container_port   = var.frontend_container_port
   }
   
+  health_check_grace_period_seconds = 60
+  
   tags = {
     Environment = var.environment.name
     Project     = "Container application"
@@ -157,8 +159,10 @@ resource "aws_lb_target_group" "frontend_tg" {
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = var.vpc_id
+  deregistration_delay = 300
+
   health_check {
-    path = "/"
+    path = "/health/"
   }
   
   tags = {
@@ -250,6 +254,8 @@ resource "aws_ecs_service" "backend" {
     container_name   = "backend-container"
     container_port   = var.backend_container_port
   }
+
+  health_check_grace_period_seconds = 60
   
   tags = {
     Environment = var.environment.name
@@ -263,6 +269,8 @@ resource "aws_lb_target_group" "backend_internal_tg" {
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = var.vpc_id
+  deregistration_delay = 300
+
   health_check {
     path = "/health" # Assumed health check
   }
@@ -283,6 +291,8 @@ resource "aws_lb_target_group" "backend_public_tg" {
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = var.vpc_id
+  deregistration_delay = 300
+
   health_check {
     path = "/health"
   }

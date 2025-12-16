@@ -1,14 +1,31 @@
 # Terracloud Infrastructure
 
 > [!CAUTION]
-> **DISCLAIMER**: This project is a **Lab/Testing Environment** and is **not intended for production use at scale** without significant hardening.
+> **DISCLAIMER**: This project is a **Lab/Testing Environment** and is **not intended for production use at scale** without proper improvements to protect data and resources.
 
 This directory contains the Terraform Infrastructure as Code (IaC) configuration for deploying the AWS microservices architecture. It is structured to support multiple environments (`dev`, `stag`, `prod`) using reusable modules.
+
+New modules can be added to the `modules` directory and used in the environment configurations. In addition,
+new environments can be added to the `env` directory and used in the environment configurations. 
+
+This structure is based in the Hashicorp Terraform Cloud (HCP Terraform) best practices using terraform cloud for state management and remote execution using Multi-repo strategy emulating partially my own production terraform structure. Modules certailn in a more advanced setting should be in terraform cloud repository
+
+My proposal is based in ECS Fargate and ALB, but it can be easily modified to use other compute and load balancer options.
+There are many technologies that can be used to build microservices, but I have chosen to use Node.js and React for this example since they are some of the most popular and well-documented.
+
+A better option for backend could be c# using .NET Core which has excelent performance and security, go or as a last option RUST mainly for performance considering low resources requirements and high concurrency. 
+
+I did not include database but I have used for some years AWS RDS Aurora and have experience with it, it has one of the best offers in cloud database services with one of the highest fault tolerance and performance architecture. 
+
+
+
+
 
 ## Project Structure
 
 The project follows a modular structure to ensure consistency and reusability:
 
+```
 terracloud/
 ├── modules/                  # Reusable Terraform logic
 │   ├── sites/                # Networking & Load Balancing (VPC, ALB, NAT)
@@ -34,13 +51,21 @@ Handles the core network foundation:
 ### 2. `modules/ecs`
 Manages the application compute layer:
 *   **Cluster**: AWS ECS Cluster to host tasks.
-*   **Task Definitions**: Blueprints for Fronend (React) and Backend (Node.js) containers.
+*   **Task Definitions**: Blueprints for Frontend (React) and Backend (Node.js) containers.
 *   **Fargate Services**: Manages the running tasks, auto-scaling, and health checks.
 *   **Target Groups**: Connects the ALBs to the ECS Services.
 *   **CloudWatch Logs**: Centralized logging for application output.
 
+**ECS advanced settings**
+ECS for production should include the usage of Open telemetry for metrics and traces, and also the usage of X-Ray for tracing and debugging. More over it should include the usage of Service Discovery for service-to-service communication, aws cloud map for service discovery and also the usage of App Mesh for service-to-service communication.
+This kind of architecture is called microservices architecture and it is the best way to build scalable and maintainable applications.
+
+
 ### 3. `modules/ecr`
 *   **Repositories**: Creates ECR repositories for storing container images (`backend_repo`, `frontend_repo`).
+
+All the container images are stored in the same ECR repository and are versioned using tags. The same image version is used for all the environments for one product, that allow to have a single version of the application for all the environments.
+
 
 ## Cost Optimization & Redundancy Strategy
 
