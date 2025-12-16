@@ -25,7 +25,6 @@ The solution deploys a RESTful Backend and a Static Frontend using AWS ECS Farga
 3.  **Load Balancing**:
     *   **Public ALB**: Exposes the application to the internet.
         *   Maps `/frontend*` path to the Frontend Service.
-        *   Maps `/api*` path to the Backend Service (Gateway pattern).
     *   **Internal ALB**: Handles internal service-to-service communication.
         *   The Backend Service is attached to this ALB for secure internal access.
 
@@ -112,7 +111,6 @@ graph TD
     end
     
     PubALB -->|/frontend*| FE_Service
-    PubALB -->|/api*| BE_Service
     
     FE_Service -.->|Internal API Calls| IntALB
     IntALB -->|/*| BE_Service
@@ -133,9 +131,8 @@ The architecture implements a "Secure by Design" approach:
 2.  **Access Control**:
     *   **Frontend**: Accessible only via the Public Load Balancer.
     *   **Backend**: 
-        *   Accessible via Public ALB (Gateway route `/api`) for the client application.
         *   Accessible internally via Internal ALB.
-        *   **NOT** directly accessible from the internet (no public IP).
+        *   **NOT** directly accessible from the internet (no public IP) and not exposed via Public ALB.
     *   **Debugging**: Internal VPC access is permitted for debugging purposes ensuring developers can troubleshoot without exposing services publicly.
 
 3.  **DevSecOps & Supply Chain Security**:
